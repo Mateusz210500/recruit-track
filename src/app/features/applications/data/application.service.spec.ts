@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { of, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { describe, expect, it, beforeEach } from 'vitest';
 
 import { buildApplication } from '../../../../../testing/factories';
@@ -90,6 +90,48 @@ describe('ApplicationService', () => {
 
     expect(service.filtered()).toHaveLength(1);
     expect(service.filtered()[0]?.company).toBe('Alpha');
+  });
+
+  it('applies optimistic ordering while move is in flight', () => {
+    const apps = [
+      buildApplication({ id: 'a', status: 'applied', order: 0 }),
+      buildApplication({ id: 'b', status: 'applied', order: 1 }),
+      buildApplication({ id: 'c', status: 'interview', order: 0 }),
+    ];
+    list$.next(apps);
+    list$.complete();
+
+    const move$ = new Subject<Application>();
+    const api = TestBed.inject(ApplicationsApi);
+    api.move = () => move$.asObservable();
+
+    service.move('a', 'interview', 1);
+
+    expect(service.applicationsByStatus().interview.map((app) => app.id)).toEqual([
+      'c',
+      'a',
+    ]);
+  });
+
+  it('rolls back optimistic ordering when move fails', () => {
+    const apps = [
+      buildApplication({ id: 'a', status: 'applied', order: 0 }),
+      buildApplication({ id: 'b', status: 'applied', order: 1 }),
+      buildApplication({ id: 'c', status: 'interview', order: 0 }),
+    ];
+    list$.next(apps);
+    list$.complete();
+
+    const api = TestBed.inject(ApplicationsApi);
+    api.move = () => throwError(() => new HttpErrorResponse({ status: 500 }));
+
+    service.move('a', 'interview', 1);
+
+    expect(service.applicationsByStatus().interview.map((app) => app.id)).toEqual(['c']);
+    expect(service.applicationsByStatus().applied.map((app) => app.id)).toEqual([
+      'a',
+      'b',
+    ]);
   });
 
   it('reloads after create', () => {

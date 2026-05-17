@@ -2,6 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   catchError,
+  EMPTY,
   map,
   merge,
   of,
@@ -12,6 +13,7 @@ import {
 } from 'rxjs';
 
 import { ApiError } from '../../../core/api-error';
+import { applyMove } from './application-order';
 import {
   APPLICATION_STATUSES,
   ApplicationStatus,
@@ -32,6 +34,7 @@ type LoadState =
 export class ApplicationService {
   private readonly api = inject(ApplicationsApi);
   private readonly refresh$ = new Subject<void>();
+  private readonly optimisticApplications = signal<Application[] | null>(null);
 
   private readonly loadState = toSignal(
     merge(of(undefined), this.refresh$.pipe(map(() => undefined))).pipe(
@@ -57,6 +60,11 @@ export class ApplicationService {
   );
 
   readonly applications = computed(() => {
+    const optimistic = this.optimisticApplications();
+    if (optimistic) {
+      return optimistic;
+    }
+
     const state = this.loadState();
     return state.status === 'success' ? state.data : [];
   });
@@ -149,9 +157,23 @@ export class ApplicationService {
   }
 
   move(id: string, status: ApplicationStatus, index: number): void {
+    const snapshot = this.applications();
+    this.optimisticApplications.set(
+      applyMove(snapshot, id, status, index),
+    );
+
     this.api
       .move(id, status, index)
-      .pipe(tap(() => this.reload()))
+      .pipe(
+        tap(() => {
+          this.optimisticApplications.set(null);
+          this.reload();
+        }),
+        catchError(() => {
+          this.optimisticApplications.set(null);
+          return EMPTY;
+        }),
+      )
       .subscribe();
   }
 
