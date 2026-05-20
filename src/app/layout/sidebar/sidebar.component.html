@@ -1,34 +1,84 @@
-<aside
-  id="app-sidebar"
-  class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-white shadow-lg transition-transform duration-200 ease-in-out lg:static lg:z-auto lg:translate-x-0 lg:shadow-none"
-  [class.-translate-x-full]="!open()"
-  [class.translate-x-0]="open()"
-  aria-label="Main navigation"
->
-  <div class="flex h-14 shrink-0 items-center border-b border-slate-200 px-4 lg:h-16 lg:px-6">
-    <a routerLink="/board" class="flex items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600" (click)="onNavClick()">
-      <span class="flex size-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white" aria-hidden="true">RT</span>
-      <span class="text-lg font-semibold text-slate-900">RecruitTrack</span>
-    </a>
-  </div>
+<aside id="app-sidebar"
+       class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white shadow-lg transition-[transform,width] duration-200 ease-in-out lg:static lg:z-auto lg:translate-x-0 lg:shadow-none h-full"
+       [class.w-64]="!collapsed()"
+       [class.w-16]="collapsed()"
+       [class.-translate-x-full]="!open()"
+       [class.translate-x-0]="open()"
+       [attr.aria-expanded]="!collapsed()"
+       aria-label="Main navigation">
+    <div class="flex h-14 shrink-0 items-center border-b border-slate-200 lg:h-16 px-4">
+        <a routerLink="/board"
+           class="flex items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 gap-2"
+           [class.justify-center]="collapsed()"
+           [attr.title]="collapsed() ? 'RecruitTrack' : null"
+           (click)="onNavClick()">
+            <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white"
+                  aria-hidden="true">RT</span>
+            <span class="text-lg font-semibold text-slate-900 transition-opacity duration-200"
+                  [class.opacity-[0%]]="collapsed()">RecruitTrack</span>
+        </a>
+    </div>
 
-  <nav class="flex-1 overflow-y-auto px-3 py-4" aria-label="Primary">
-    <ul class="space-y-1" role="list">
-      @for (item of navItems; track item.path) {
-        <li>
-          <a
-            [routerLink]="item.path"
-            routerLinkActive="bg-indigo-50 text-indigo-700"
-            [routerLinkActiveOptions]="{ exact: true }"
-            ariaCurrentWhenActive="page"
-            class="group flex flex-col rounded-lg px-3 py-2.5 text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            (click)="onNavClick()"
-          >
-            <span class="text-sm font-medium">{{ item.label }}</span>
-            <span class="text-xs text-slate-500 group-[.bg-indigo-50]:text-indigo-600/80">{{ item.description }}</span>
-          </a>
-        </li>
-      }
-    </ul>
-  </nav>
+    <nav class="flex-1 overflow-y-auto py-4 px-3"
+         aria-label="Primary">
+        <ul class="space-y-1"
+            role="list">
+            @for (item of navItems; track item.path) {
+            <li>
+                <a [routerLink]="item.path"
+                   routerLinkActive="bg-indigo-50 text-indigo-700"
+                   [routerLinkActiveOptions]="{ exact: true }"
+                   ariaCurrentWhenActive="page"
+                   class="group flex rounded-lg text-slate-700 transition-colors gap-3 p-2 items-center hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                   [attr.title]="collapsed() ? item.label : null"
+                   (click)="onNavClick()">
+                    <app-icon [name]="item.icon"
+                              class="size-5 shrink-0" />
+                    <div [class.opacity-[0%]]="collapsed()">
+                        <span class="flex min-w-0 items-center gap-1.5">
+                            <span class="text-sm font-medium">{{ item.label }}</span>
+                            @if (item.description) {
+                            <span class="relative shrink-0">
+                                <button type="button"
+                                        class="inline-flex size-4 items-center justify-center rounded-full text-slate-400 transition-colors"
+                                        [attr.aria-label]="item.description"
+                                        [attr.aria-describedby]="navTooltip()?.path === item.path ? 'nav-item-tooltip' : null"
+                                        (mouseenter)="showNavTooltip($event, item)"
+                                        (mouseleave)="hideNavTooltip()"
+                                        (focus)="showNavTooltip($event, item)"
+                                        (blur)="hideNavTooltip()"
+                                        (click)="$event.preventDefault(); $event.stopPropagation()">
+                                    <app-icon name="info"
+                                              class="size-3.5" />
+                                </button>
+                            </span>
+                            }
+                        </span>
+                    </div>
+                </a>
+            </li>
+            }
+        </ul>
+    </nav>
+
+    <div class="relative">
+        <button type="button"
+                style="position: absolute; bottom: 20px; right: -10px;"
+                class="bg-white rounded-full border border-slate-200 text-slate-500"
+                [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+                (click)="onCollapseToggle()">
+            <app-icon [name]="collapsed() ? 'chevron-right' : 'chevron-left'"
+                      class="size-5 block" />
+        </button>
+    </div>
 </aside>
+
+@if (navTooltip(); as tip) {
+<div id="nav-item-tooltip"
+     role="tooltip"
+     class="pointer-events-none fixed z-[100] max-w-[120px] -translate-y-1/2 rounded-md bg-slate-800 px-2 py-1 text-xs font-normal whitespace-normal text-white shadow-lg"
+     [style.top.px]="tip.top"
+     [style.left.px]="tip.left">
+    {{ tip.text }}
+</div>
+}

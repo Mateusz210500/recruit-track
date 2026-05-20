@@ -2,12 +2,13 @@ import { CdkDrag, CdkDragHandle } from '@angular/cdk/drag-drop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 
+import { IconComponent } from '../../../../shared/icons';
 import { Application } from '../../data/application.model';
 import { StatusPillComponent } from '../status-pill/status-pill.component';
 
 @Component({
   selector: 'app-application-card',
-  imports: [CdkDrag, CdkDragHandle, CurrencyPipe, DatePipe, StatusPillComponent],
+  imports: [CdkDrag, CdkDragHandle, CurrencyPipe, DatePipe, StatusPillComponent, IconComponent],
   template: `
     <article
       cdkDrag
@@ -27,14 +28,7 @@ import { StatusPillComponent } from '../status-pill/status-pill.component';
             class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
             aria-label="Drag to reorder"
           >
-            <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <circle cx="7" cy="5" r="1.25" />
-              <circle cx="13" cy="5" r="1.25" />
-              <circle cx="7" cy="10" r="1.25" />
-              <circle cx="13" cy="10" r="1.25" />
-              <circle cx="7" cy="15" r="1.25" />
-              <circle cx="13" cy="15" r="1.25" />
-            </svg>
+            <app-icon name="grip" class="size-4" />
           </button>
           <app-status-pill [status]="application().status" />
         </div>

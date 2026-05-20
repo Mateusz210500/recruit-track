@@ -49,6 +49,29 @@ describe('ShellComponent', () => {
     expect(skipLink?.textContent?.trim()).toBe('Skip to main content');
   });
 
+  it('collapses the sidebar on desktop', () => {
+    localStorage.removeItem('recruit-track-sidebar-collapsed');
+    const fixture = TestBed.createComponent(ShellComponent);
+    fixture.detectChanges();
+
+    const sidebar = fixture.nativeElement.querySelector(
+      '#app-sidebar',
+    ) as HTMLElement;
+    const collapseBtn = fixture.nativeElement.querySelector(
+      'button[aria-label="Collapse sidebar"]',
+    ) as HTMLButtonElement;
+
+    expect(sidebar.classList.contains('w-64')).toBe(true);
+    expect(sidebar.classList.contains('w-16')).toBe(false);
+
+    collapseBtn.click();
+    fixture.detectChanges();
+
+    expect(sidebar.classList.contains('w-16')).toBe(true);
+    expect(sidebar.classList.contains('w-64')).toBe(false);
+    expect(localStorage.getItem('recruit-track-sidebar-collapsed')).toBe('true');
+  });
+
   it('toggles the mobile navigation menu', () => {
     const fixture = TestBed.createComponent(ShellComponent);
     fixture.detectChanges();
