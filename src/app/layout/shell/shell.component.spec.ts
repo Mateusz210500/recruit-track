@@ -61,14 +61,14 @@ describe('ShellComponent', () => {
       'button[aria-label="Collapse sidebar"]',
     ) as HTMLButtonElement;
 
-    expect(sidebar.classList.contains('w-64')).toBe(true);
-    expect(sidebar.classList.contains('w-16')).toBe(false);
+    expect(sidebar.classList.contains('lg:w-64')).toBe(true);
+    expect(sidebar.classList.contains('lg:w-16')).toBe(false);
 
     collapseBtn.click();
     fixture.detectChanges();
 
-    expect(sidebar.classList.contains('w-16')).toBe(true);
-    expect(sidebar.classList.contains('w-64')).toBe(false);
+    expect(sidebar.classList.contains('lg:w-16')).toBe(true);
+    expect(sidebar.classList.contains('lg:w-64')).toBe(false);
     expect(localStorage.getItem('recruit-track-sidebar-collapsed')).toBe('true');
   });
 
@@ -83,16 +83,16 @@ describe('ShellComponent', () => {
       'button[aria-controls="app-sidebar"]',
     ) as HTMLButtonElement;
 
-    expect(sidebar.classList.contains('translate-x-0')).toBe(false);
+    expect(sidebar.classList.contains('max-lg:translate-x-0')).toBe(false);
 
     toggle.click();
     fixture.detectChanges();
-    expect(sidebar.classList.contains('translate-x-0')).toBe(true);
+    expect(sidebar.classList.contains('max-lg:translate-x-0')).toBe(true);
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
 
     toggle.click();
     fixture.detectChanges();
-    expect(sidebar.classList.contains('translate-x-0')).toBe(false);
+    expect(sidebar.classList.contains('max-lg:translate-x-0')).toBe(false);
     expect(toggle.getAttribute('aria-expanded')).toBe('false');
   });
 

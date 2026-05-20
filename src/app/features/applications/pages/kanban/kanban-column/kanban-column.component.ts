@@ -1,10 +1,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, computed, input, output } from '@angular/core';
 
-import {
-  APPLICATION_STATUS_META,
-  ApplicationStatus,
-} from '../../../data/application-status';
+import { APPLICATION_STATUS_META, ApplicationStatus } from '../../../data/application-status';
 import { Application } from '../../../data/application.model';
 import { ApplicationCardComponent } from '../../../ui/application-card/application-card.component';
 
@@ -18,10 +15,11 @@ const COLUMN_HEADER_CLASSES: Record<ApplicationStatus, string> = {
 
 @Component({
   selector: 'app-kanban-column',
+  host: { class: 'flex min-w-62 flex-1 basis-0' },
   imports: [DragDropModule, ApplicationCardComponent],
   template: `
     <section
-      class="flex min-h-80 min-w-72 flex-1 flex-col rounded-xl border border-slate-200 bg-slate-50/80"
+      class="flex h-full min-h-80 w-full flex-col rounded-xl border border-slate-200 bg-slate-50/80"
       [attr.aria-label]="columnLabel() + ' column'"
     >
       <header
@@ -42,12 +40,11 @@ const COLUMN_HEADER_CLASSES: Record<ApplicationStatus, string> = {
         (cdkDropListDropped)="dropped.emit($event)"
       >
         @for (application of applications(); track application.id) {
-          <app-application-card
-            [application]="application"
-            (edit)="editApplication.emit($event)"
-          />
+          <app-application-card [application]="application" (edit)="editApplication.emit($event)" />
         } @empty {
-          <p class="rounded-lg border border-dashed border-slate-300 px-3 py-6 text-center text-xs text-slate-500">
+          <p
+            class="rounded-lg border border-dashed border-slate-300 px-3 py-6 text-center text-xs text-slate-500"
+          >
             Drop applications here
           </p>
         }
@@ -63,11 +60,7 @@ export class KanbanColumnComponent {
   readonly dropped = output<CdkDragDrop<ApplicationStatus>>();
   readonly editApplication = output<Application>();
 
-  readonly columnLabel = computed(
-    () => APPLICATION_STATUS_META[this.status()].label,
-  );
+  readonly columnLabel = computed(() => APPLICATION_STATUS_META[this.status()].label);
 
-  readonly headerClass = computed(
-    () => COLUMN_HEADER_CLASSES[this.status()],
-  );
+  readonly headerClass = computed(() => COLUMN_HEADER_CLASSES[this.status()]);
 }

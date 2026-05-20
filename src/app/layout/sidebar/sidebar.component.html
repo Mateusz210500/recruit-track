@@ -1,21 +1,25 @@
 <aside id="app-sidebar"
-       class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white shadow-lg transition-[transform,width] duration-200 ease-in-out lg:static lg:z-auto lg:translate-x-0 lg:shadow-none h-full"
-       [class.w-64]="!collapsed()"
-       [class.w-16]="collapsed()"
-       [class.-translate-x-full]="!open()"
-       [class.translate-x-0]="open()"
+       class="fixed inset-y-0 left-0 z-50 flex h-full w-64 max-lg:w-64 flex-col border-r border-slate-200 bg-white max-lg:transition-[transform,opacity,box-shadow] max-lg:duration-300 max-lg:ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:max-lg:transition-none lg:static lg:z-auto lg:translate-x-0 lg:opacity-100 lg:shadow-none lg:transition-[width] lg:duration-200 lg:ease-in-out"
+       [class.lg:w-64]="!collapsed()"
+       [class.lg:w-16]="collapsed()"
+       [class.max-lg:-translate-x-full]="!open()"
+       [class.max-lg:translate-x-0]="open()"
+       [class.max-lg:opacity-0]="!open()"
+       [class.max-lg:opacity-100]="open()"
+       [class.max-lg:shadow-none]="!open()"
+       [class.max-lg:shadow-xl]="open()"
        [attr.aria-expanded]="!collapsed()"
        aria-label="Main navigation">
     <div class="flex h-14 shrink-0 items-center border-b border-slate-200 lg:h-16 px-4">
         <a routerLink="/board"
            class="flex items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 gap-2"
-           [class.justify-center]="collapsed()"
+           [class.lg:justify-center]="collapsed()"
            [attr.title]="collapsed() ? 'RecruitTrack' : null"
            (click)="onNavClick()">
             <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white"
                   aria-hidden="true">RT</span>
             <span class="text-lg font-semibold text-slate-900 transition-opacity duration-200"
-                  [class.opacity-[0%]]="collapsed()">RecruitTrack</span>
+                  [class.lg:opacity-[0%]]="collapsed()">RecruitTrack</span>
         </a>
     </div>
 
@@ -34,11 +38,12 @@
                    (click)="onNavClick()">
                     <app-icon [name]="item.icon"
                               class="size-5 shrink-0" />
-                    <div [class.opacity-[0%]]="collapsed()">
+                    <div class="min-w-0"
+                         [class.lg:opacity-[0%]]="collapsed()">
                         <span class="flex min-w-0 items-center gap-1.5">
                             <span class="text-sm font-medium">{{ item.label }}</span>
                             @if (item.description) {
-                            <span class="relative shrink-0">
+                            <span class="relative shrink-0 max-lg:hidden">
                                 <button type="button"
                                         class="inline-flex size-4 items-center justify-center rounded-full text-slate-400 transition-colors"
                                         [attr.aria-label]="item.description"
@@ -61,7 +66,7 @@
         </ul>
     </nav>
 
-    <div class="relative">
+    <div class="relative max-lg:hidden">
         <button type="button"
                 style="position: absolute; bottom: 20px; right: -10px;"
                 class="bg-white rounded-full border border-slate-200 text-slate-500"

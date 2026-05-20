@@ -1,33 +1,19 @@
-import {
-  Component,
-  effect,
-  inject,
-  input,
-  model,
-  output,
-} from '@angular/core';
-import {
-  NonNullableFormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component, effect, inject, input, model, output } from '@angular/core';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import {
-  APPLICATION_STATUSES,
-  ApplicationStatus,
-} from '../../data/application-status';
+import { IconComponent } from '../../../../shared/icons';
+import { APPLICATION_STATUSES, ApplicationStatus } from '../../data/application-status';
 import {
   Application,
   CreateApplicationDto,
   UpdateApplicationDto,
 } from '../../data/application.model';
 
-const URL_PATTERN =
-  /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
+const URL_PATTERN = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
 
 @Component({
   selector: 'app-application-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, IconComponent],
   template: `
     @if (open()) {
       <div
@@ -52,7 +38,7 @@ const URL_PATTERN =
               aria-label="Close form"
               (click)="close()"
             >
-              <span aria-hidden="true">&times;</span>
+              <app-icon name="close" class="size-5" />
             </button>
           </header>
 
@@ -283,13 +269,9 @@ export class ApplicationFormComponent {
       .split(',')
       .map((item) => item.trim())
       .filter(Boolean);
-    const appliedAt = value.appliedAt
-      ? new Date(value.appliedAt).toISOString()
-      : null;
+    const appliedAt = value.appliedAt ? new Date(value.appliedAt).toISOString() : null;
     const salary =
-      value.salary === null || value.salary === undefined
-        ? null
-        : Number(value.salary);
+      value.salary === null || value.salary === undefined ? null : Number(value.salary);
     const url = value.url.trim() || null;
 
     const app = this.application();

@@ -19,6 +19,7 @@ export interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
+  host: { class: 'contents' },
   imports: [RouterLink, RouterLinkActive, IconComponent],
   templateUrl: './sidebar.component.html',
 })

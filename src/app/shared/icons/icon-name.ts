@@ -8,4 +8,5 @@ export type IconName =
   | 'chart-bars'
   | 'settings-cog'
   | 'grip'
-  | 'info';
+  | 'info'
+  | 'close';

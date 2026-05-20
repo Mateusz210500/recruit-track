@@ -1,10 +1,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { Component, inject, signal } from '@angular/core';
 
-import {
-  APPLICATION_STATUSES,
-  ApplicationStatus,
-} from '../../data/application-status';
+import { APPLICATION_STATUSES, ApplicationStatus } from '../../data/application-status';
 import { Application } from '../../data/application.model';
 import { ApplicationService } from '../../data/application.service';
 import { ApplicationFormComponent } from '../../ui/application-form/application-form.component';
@@ -13,9 +10,17 @@ import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
 @Component({
   selector: 'app-kanban-page',
   imports: [DragDropModule, KanbanColumnComponent, ApplicationFormComponent],
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+      }
+    `,
+  ],
   template: `
-    <div class="flex flex-col gap-4">
-      <header class="flex flex-wrap items-center justify-between gap-3">
+    <div class="flex flex-col h-full">
+      <header class="flex flex-wrap items-center justify-between gap-3 pb-6">
         <div>
           <h1 class="text-2xl font-semibold text-slate-900">Kanban board</h1>
           <p class="mt-1 text-sm text-slate-600">
@@ -57,7 +62,7 @@ import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
       } @else {
         <div
           cdkDropListGroup
-          class="flex gap-4 overflow-x-auto pb-2"
+          class="flex min-h-0 flex-1 gap-4 overflow-x-auto pb-4"
           aria-label="Application kanban board"
         >
           @for (status of statuses; track status) {
