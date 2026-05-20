@@ -6,6 +6,8 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { buildApplication } from '../../../../../testing/factories';
 import { provideFakeApplicationsApi } from '../../../../../testing/test-bed';
 import { ApiError } from '../../../core/api-error';
+import { ToastService } from '../../../core/toast/toast.service';
+import { EMPTY_APPLICATION_FILTERS } from './application-filters.model';
 import { Application } from './application.model';
 import { ApplicationsApi } from './applications.api';
 import { ApplicationService } from './application.service';
@@ -78,7 +80,7 @@ describe('ApplicationService', () => {
     expect(service.counts().interview).toBe(1);
   });
 
-  it('filters applications by query', () => {
+  it('debounces search input before filtering', async () => {
     const apps = [
       buildApplication({ company: 'Alpha', role: 'Engineer' }),
       buildApplication({ id: 'b', company: 'Beta', role: 'Designer' }),
@@ -86,10 +88,63 @@ describe('ApplicationService', () => {
     list$.next(apps);
     list$.complete();
 
-    service.setFilterQuery('alpha');
+    service.setSearchInput('alpha');
+    expect(service.searchQuery()).toBe('');
+    expect(service.filtered()).toHaveLength(2);
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
+    expect(service.searchQuery()).toBe('alpha');
+    expect(service.filtered()).toHaveLength(1);
+    expect(service.filtered()[0]?.company).toBe('Alpha');
+  });
+
+  it('filters applications by structured criteria', () => {
+    const apps = [
+      buildApplication({
+        company: 'Alpha',
+        techStack: ['Angular'],
+        salary: 130_000,
+        appliedAt: '2026-02-01T00:00:00.000Z',
+      }),
+      buildApplication({
+        id: 'b',
+        company: 'Beta',
+        techStack: ['React'],
+        salary: 80_000,
+        appliedAt: '2025-12-01T00:00:00.000Z',
+      }),
+    ];
+    list$.next(apps);
+    list$.complete();
+
+    service.setFilters({
+      ...EMPTY_APPLICATION_FILTERS,
+      techStack: ['Angular'],
+      salaryMin: 100_000,
+      appliedAfter: '2026-01-01',
+    });
 
     expect(service.filtered()).toHaveLength(1);
     expect(service.filtered()[0]?.company).toBe('Alpha');
+    expect(service.filteredApplicationsByStatus().applied).toHaveLength(1);
+  });
+
+  it('shows a toast when a mutation fails', () => {
+    const apps = [buildApplication({ id: 'a', status: 'applied', order: 0 })];
+    list$.next(apps);
+    list$.complete();
+
+    const toast = TestBed.inject(ToastService);
+    const api = TestBed.inject(ApplicationsApi);
+    api.move = () =>
+      throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Server Error' }));
+
+    service.move('a', 'interview', 0);
+
+    expect(toast.toasts()).toHaveLength(1);
+    expect(toast.toasts()[0]?.variant).toBe('error');
+    expect(toast.toasts()[0]?.message).toContain('Could not move application');
   });
 
   it('applies optimistic ordering while move is in flight', () => {

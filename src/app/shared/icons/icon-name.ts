@@ -9,4 +9,5 @@ export type IconName =
   | 'settings-cog'
   | 'grip'
   | 'info'
-  | 'close';
+  | 'close'
+  | 'search';

@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
+import { ToastContainerComponent } from '../../shared/ui/toast-container/toast-container.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { TopbarComponent } from '../topbar/topbar.component';
 
@@ -16,7 +17,7 @@ function readSidebarCollapsed(): boolean {
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, SidebarComponent, TopbarComponent],
+  imports: [RouterOutlet, SidebarComponent, TopbarComponent, ToastContainerComponent],
   templateUrl: './shell.component.html',
 })
 export class ShellComponent {

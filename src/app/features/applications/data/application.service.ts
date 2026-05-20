@@ -1,7 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
   catchError,
+  debounceTime,
+  distinctUntilChanged,
   EMPTY,
   map,
   merge,
@@ -13,11 +15,18 @@ import {
 } from 'rxjs';
 
 import { ApiError } from '../../../core/api-error';
+import { ToastService } from '../../../core/toast/toast.service';
+import { filterApplications } from './application-filter.utils';
 import { applyMove } from './application-order';
 import {
   APPLICATION_STATUSES,
   ApplicationStatus,
 } from './application-status';
+import {
+  ApplicationFilters,
+  EMPTY_APPLICATION_FILTERS,
+  hasActiveFilters,
+} from './application-filters.model';
 import {
   Application,
   CreateApplicationDto,
@@ -30,11 +39,30 @@ type LoadState =
   | { status: 'success'; data: Application[] }
   | { status: 'error'; error: ApiError };
 
+const SEARCH_DEBOUNCE_MS = 200;
+
 @Injectable({ providedIn: 'root' })
 export class ApplicationService {
   private readonly api = inject(ApplicationsApi);
+  private readonly toast = inject(ToastService);
   private readonly refresh$ = new Subject<void>();
   private readonly optimisticApplications = signal<Application[] | null>(null);
+
+  private readonly searchInputState = signal('');
+
+  readonly searchInput = this.searchInputState.asReadonly();
+
+  private readonly debouncedSearchQuery = toSignal(
+    toObservable(this.searchInputState).pipe(
+      debounceTime(SEARCH_DEBOUNCE_MS),
+      distinctUntilChanged(),
+    ),
+    { initialValue: '' },
+  );
+
+  private readonly filtersState = signal<ApplicationFilters>(
+    EMPTY_APPLICATION_FILTERS,
+  );
 
   private readonly loadState = toSignal(
     merge(of(undefined), this.refresh$.pipe(map(() => undefined))).pipe(
@@ -76,25 +104,9 @@ export class ApplicationService {
     return state.status === 'error' ? state.error : null;
   });
 
-  readonly applicationsByStatus = computed(() => {
-    const grouped = APPLICATION_STATUSES.reduce(
-      (acc, status) => {
-        acc[status] = [];
-        return acc;
-      },
-      {} as Record<ApplicationStatus, Application[]>,
-    );
-
-    for (const application of this.applications()) {
-      grouped[application.status].push(application);
-    }
-
-    for (const status of APPLICATION_STATUSES) {
-      grouped[status].sort((a, b) => a.order - b.order);
-    }
-
-    return grouped;
-  });
+  readonly applicationsByStatus = computed(() =>
+    this.groupByStatus(this.applications()),
+  );
 
   readonly counts = computed(() =>
     APPLICATION_STATUSES.reduce(
@@ -108,27 +120,42 @@ export class ApplicationService {
     ),
   );
 
-  private readonly filterQuery = signal('');
+  readonly filters = this.filtersState.asReadonly();
 
-  readonly filtered = computed(() => {
-    const query = this.filterQuery().trim().toLowerCase();
-    if (!query) {
-      return this.applications();
-    }
+  readonly searchQuery = this.debouncedSearchQuery;
 
-    return this.applications().filter((application) => {
-      const haystack = [
-        application.company,
-        application.role,
-        application.notes,
-        ...application.techStack,
-      ]
-        .join(' ')
-        .toLowerCase();
+  readonly hasActiveFilters = computed(() =>
+    hasActiveFilters(this.filtersState()),
+  );
 
-      return haystack.includes(query);
-    });
-  });
+  readonly isFiltering = computed(
+    () =>
+      this.debouncedSearchQuery().trim().length > 0 || this.hasActiveFilters(),
+  );
+
+  readonly filtered = computed(() =>
+    filterApplications(
+      this.applications(),
+      this.debouncedSearchQuery(),
+      this.filtersState(),
+    ),
+  );
+
+  readonly filteredApplicationsByStatus = computed(() =>
+    this.groupByStatus(this.filtered()),
+  );
+
+  readonly filteredCounts = computed(() =>
+    APPLICATION_STATUSES.reduce(
+      (acc, status) => {
+        acc[status] = this.filtered().filter(
+          (application) => application.status === status,
+        ).length;
+        return acc;
+      },
+      {} as Record<ApplicationStatus, number>,
+    ),
+  );
 
   constructor() {
     this.refresh$.next();
@@ -138,21 +165,35 @@ export class ApplicationService {
     this.refresh$.next();
   }
 
-  setFilterQuery(query: string): void {
-    this.filterQuery.set(query);
+  setSearchInput(query: string): void {
+    this.searchInputState.set(query);
+  }
+
+  setFilters(filters: ApplicationFilters): void {
+    this.filtersState.set(filters);
+  }
+
+  clearFilters(): void {
+    this.filtersState.set(EMPTY_APPLICATION_FILTERS);
   }
 
   create(dto: CreateApplicationDto): void {
     this.api
       .create(dto)
-      .pipe(tap(() => this.reload()))
+      .pipe(
+        tap(() => this.reload()),
+        catchError((error) => this.handleMutationError('Could not create application', error)),
+      )
       .subscribe();
   }
 
   update(id: string, patch: UpdateApplicationDto): void {
     this.api
       .update(id, patch)
-      .pipe(tap(() => this.reload()))
+      .pipe(
+        tap(() => this.reload()),
+        catchError((error) => this.handleMutationError('Could not update application', error)),
+      )
       .subscribe();
   }
 
@@ -169,9 +210,9 @@ export class ApplicationService {
           this.optimisticApplications.set(null);
           this.reload();
         }),
-        catchError(() => {
+        catchError((error) => {
           this.optimisticApplications.set(null);
-          return EMPTY;
+          return this.handleMutationError('Could not move application', error);
         }),
       )
       .subscribe();
@@ -180,7 +221,38 @@ export class ApplicationService {
   remove(id: string): void {
     this.api
       .remove(id)
-      .pipe(tap(() => this.reload()))
+      .pipe(
+        tap(() => this.reload()),
+        catchError((error) => this.handleMutationError('Could not delete application', error)),
+      )
       .subscribe();
+  }
+
+  private groupByStatus(
+    applications: Application[],
+  ): Record<ApplicationStatus, Application[]> {
+    const grouped = APPLICATION_STATUSES.reduce(
+      (acc, status) => {
+        acc[status] = [];
+        return acc;
+      },
+      {} as Record<ApplicationStatus, Application[]>,
+    );
+
+    for (const application of applications) {
+      grouped[application.status].push(application);
+    }
+
+    for (const status of APPLICATION_STATUSES) {
+      grouped[status].sort((a, b) => a.order - b.order);
+    }
+
+    return grouped;
+  }
+
+  private handleMutationError(context: string, error: unknown) {
+    const apiError = ApiError.from(error);
+    this.toast.show(`${context}: ${apiError.message}`, 'error');
+    return EMPTY;
   }
 }

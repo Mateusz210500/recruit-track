@@ -10,8 +10,21 @@
     <app-icon name="menu" class="size-5" />
   </button>
 
-  <div class="min-w-0 flex-1">
-    <p class="truncate text-sm font-medium text-slate-900 lg:text-base">Job application tracker</p>
-    <p class="hidden truncate text-xs text-slate-500 sm:block">Organize your recruiting pipeline</p>
+  <div class="relative min-w-0 flex-1 max-w-md">
+    <label class="sr-only" for="app-search">Search applications</label>
+    <app-icon
+      name="search"
+      class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+      aria-hidden="true"
+    />
+    <input
+      id="app-search"
+      type="search"
+      class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+      placeholder="Search company, role, tech…"
+      autocomplete="off"
+      [value]="searchInput()"
+      (input)="onSearchInput($event)"
+    />
   </div>
 </header>

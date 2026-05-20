@@ -15,7 +15,7 @@ const COLUMN_HEADER_CLASSES: Record<ApplicationStatus, string> = {
 
 @Component({
   selector: 'app-kanban-column',
-  host: { class: 'flex min-w-62 flex-1 basis-0' },
+  host: { class: 'flex min-w-62 flex-1 basis-0', style: 'height: max-content;' },
   imports: [DragDropModule, ApplicationCardComponent],
   template: `
     <section
