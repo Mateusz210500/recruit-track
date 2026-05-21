@@ -10,6 +10,7 @@
                   class="size-5" />
     </button>
 
+    @if(showBoardSearch()){
     <div class="relative min-w-0 flex-1 max-w-md">
         <label class="sr-only"
                for="app-search">Search applications</label>
@@ -24,4 +25,5 @@
                [value]="searchInput()"
                (input)="onSearchInput($event)" />
     </div>
+    }
 </header>

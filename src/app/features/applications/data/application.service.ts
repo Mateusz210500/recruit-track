@@ -16,6 +16,7 @@ import {
 
 import { ApiError } from '../../../core/api-error';
 import { ToastService } from '../../../core/toast/toast.service';
+import { buildRecentActivity } from './application-activity.utils';
 import { filterApplicationsBySearch } from './application-search.utils';
 import { applyMove } from './application-order';
 import {
@@ -126,6 +127,17 @@ export class ApplicationService {
 
   readonly filteredApplicationsByStatus = computed(() =>
     this.groupByStatus(this.filtered()),
+  );
+
+  readonly totalCount = computed(() => this.applications().length);
+
+  readonly pipelineCount = computed(() => {
+    const counts = this.counts();
+    return counts.wishlist + counts.applied + counts.interview;
+  });
+
+  readonly recentActivity = computed(() =>
+    buildRecentActivity(this.applications()),
   );
 
   constructor() {

@@ -79,6 +79,39 @@ describe('ApplicationService', () => {
     expect(service.counts().interview).toBe(1);
   });
 
+  it('computes totalCount, pipelineCount, and recentActivity', () => {
+    const apps = [
+      buildApplication({
+        id: 'a',
+        status: 'wishlist',
+        createdAt: '2026-05-01T10:00:00.000Z',
+        updatedAt: '2026-05-01T10:00:00.000Z',
+      }),
+      buildApplication({
+        id: 'b',
+        status: 'applied',
+        createdAt: '2026-05-02T10:00:00.000Z',
+        updatedAt: '2026-05-04T10:00:00.000Z',
+        appliedAt: '2026-05-03T10:00:00.000Z',
+      }),
+      buildApplication({
+        id: 'c',
+        status: 'offer',
+        createdAt: '2026-05-05T10:00:00.000Z',
+        updatedAt: '2026-05-05T10:00:00.000Z',
+      }),
+    ];
+    list$.next(apps);
+    list$.complete();
+
+    expect(service.totalCount()).toBe(3);
+    expect(service.pipelineCount()).toBe(2);
+    expect(service.recentActivity()[0]?.id).toBe('c-created');
+    expect(service.recentActivity().some((item) => item.id === 'b-updated')).toBe(
+      true,
+    );
+  });
+
   it('debounces search input before filtering', async () => {
     const apps = [
       buildApplication({ company: 'Alpha', role: 'Engineer' }),
