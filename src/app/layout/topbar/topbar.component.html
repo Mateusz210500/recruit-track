@@ -1,30 +1,27 @@
-<header class="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-white/80 lg:h-16 lg:px-6">
-  <button
-    type="button"
-    class="inline-flex size-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:hidden"
-    [attr.aria-expanded]="menuExpanded()"
-    aria-controls="app-sidebar"
-    aria-label="Toggle navigation menu"
-    (click)="menuToggle.emit()"
-  >
-    <app-icon name="menu" class="size-5" />
-  </button>
+<header
+        class="sticky top-0 z-50 flex h-14 shrink-0 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-white/80 lg:h-16 lg:px-6">
+    <button type="button"
+            class="inline-flex size-10 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:hidden"
+            [attr.aria-expanded]="menuExpanded()"
+            aria-controls="app-sidebar"
+            aria-label="Toggle navigation menu"
+            (click)="menuToggle.emit()">
+        <app-icon name="menu"
+                  class="size-5" />
+    </button>
 
-  <div class="relative min-w-0 flex-1 max-w-md">
-    <label class="sr-only" for="app-search">Search applications</label>
-    <app-icon
-      name="search"
-      class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
-      aria-hidden="true"
-    />
-    <input
-      id="app-search"
-      type="search"
-      class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-      placeholder="Search company, role, tech…"
-      autocomplete="off"
-      [value]="searchInput()"
-      (input)="onSearchInput($event)"
-    />
-  </div>
+    <div class="relative min-w-0 flex-1 max-w-md">
+        <label class="sr-only"
+               for="app-search">Search applications</label>
+        <app-icon name="search"
+                  class="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+                  aria-hidden="true" />
+        <input id="app-search"
+               type="search"
+               class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+               placeholder="Search company, role, tech…"
+               autocomplete="off"
+               [value]="searchInput()"
+               (input)="onSearchInput($event)" />
+    </div>
 </header>

@@ -16,17 +16,12 @@ import {
 
 import { ApiError } from '../../../core/api-error';
 import { ToastService } from '../../../core/toast/toast.service';
-import { filterApplications } from './application-filter.utils';
+import { filterApplicationsBySearch } from './application-search.utils';
 import { applyMove } from './application-order';
 import {
   APPLICATION_STATUSES,
   ApplicationStatus,
 } from './application-status';
-import {
-  ApplicationFilters,
-  EMPTY_APPLICATION_FILTERS,
-  hasActiveFilters,
-} from './application-filters.model';
 import {
   Application,
   CreateApplicationDto,
@@ -58,10 +53,6 @@ export class ApplicationService {
       distinctUntilChanged(),
     ),
     { initialValue: '' },
-  );
-
-  private readonly filtersState = signal<ApplicationFilters>(
-    EMPTY_APPLICATION_FILTERS,
   );
 
   private readonly loadState = toSignal(
@@ -120,41 +111,21 @@ export class ApplicationService {
     ),
   );
 
-  readonly filters = this.filtersState.asReadonly();
-
   readonly searchQuery = this.debouncedSearchQuery;
 
-  readonly hasActiveFilters = computed(() =>
-    hasActiveFilters(this.filtersState()),
-  );
-
-  readonly isFiltering = computed(
-    () =>
-      this.debouncedSearchQuery().trim().length > 0 || this.hasActiveFilters(),
+  readonly isSearching = computed(
+    () => this.debouncedSearchQuery().trim().length > 0,
   );
 
   readonly filtered = computed(() =>
-    filterApplications(
+    filterApplicationsBySearch(
       this.applications(),
       this.debouncedSearchQuery(),
-      this.filtersState(),
     ),
   );
 
   readonly filteredApplicationsByStatus = computed(() =>
     this.groupByStatus(this.filtered()),
-  );
-
-  readonly filteredCounts = computed(() =>
-    APPLICATION_STATUSES.reduce(
-      (acc, status) => {
-        acc[status] = this.filtered().filter(
-          (application) => application.status === status,
-        ).length;
-        return acc;
-      },
-      {} as Record<ApplicationStatus, number>,
-    ),
   );
 
   constructor() {
@@ -167,14 +138,6 @@ export class ApplicationService {
 
   setSearchInput(query: string): void {
     this.searchInputState.set(query);
-  }
-
-  setFilters(filters: ApplicationFilters): void {
-    this.filtersState.set(filters);
-  }
-
-  clearFilters(): void {
-    this.filtersState.set(EMPTY_APPLICATION_FILTERS);
   }
 
   create(dto: CreateApplicationDto): void {

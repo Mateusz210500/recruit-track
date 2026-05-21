@@ -7,7 +7,6 @@ import { buildApplication } from '../../../../../testing/factories';
 import { provideFakeApplicationsApi } from '../../../../../testing/test-bed';
 import { ApiError } from '../../../core/api-error';
 import { ToastService } from '../../../core/toast/toast.service';
-import { EMPTY_APPLICATION_FILTERS } from './application-filters.model';
 import { Application } from './application.model';
 import { ApplicationsApi } from './applications.api';
 import { ApplicationService } from './application.service';
@@ -97,37 +96,6 @@ describe('ApplicationService', () => {
     expect(service.searchQuery()).toBe('alpha');
     expect(service.filtered()).toHaveLength(1);
     expect(service.filtered()[0]?.company).toBe('Alpha');
-  });
-
-  it('filters applications by structured criteria', () => {
-    const apps = [
-      buildApplication({
-        company: 'Alpha',
-        techStack: ['Angular'],
-        salary: 130_000,
-        appliedAt: '2026-02-01T00:00:00.000Z',
-      }),
-      buildApplication({
-        id: 'b',
-        company: 'Beta',
-        techStack: ['React'],
-        salary: 80_000,
-        appliedAt: '2025-12-01T00:00:00.000Z',
-      }),
-    ];
-    list$.next(apps);
-    list$.complete();
-
-    service.setFilters({
-      ...EMPTY_APPLICATION_FILTERS,
-      techStack: ['Angular'],
-      salaryMin: 100_000,
-      appliedAfter: '2026-01-01',
-    });
-
-    expect(service.filtered()).toHaveLength(1);
-    expect(service.filtered()[0]?.company).toBe('Alpha');
-    expect(service.filteredApplicationsByStatus().applied).toHaveLength(1);
   });
 
   it('shows a toast when a mutation fails', () => {

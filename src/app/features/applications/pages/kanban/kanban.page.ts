@@ -4,18 +4,12 @@ import { Component, inject, signal } from '@angular/core';
 import { APPLICATION_STATUSES, ApplicationStatus } from '../../data/application-status';
 import { Application } from '../../data/application.model';
 import { ApplicationService } from '../../data/application.service';
-import { ApplicationFiltersComponent } from '../../ui/application-filters/application-filters.component';
 import { ApplicationFormComponent } from '../../ui/application-form/application-form.component';
 import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
 
 @Component({
   selector: 'app-kanban-page',
-  imports: [
-    DragDropModule,
-    KanbanColumnComponent,
-    ApplicationFormComponent,
-    ApplicationFiltersComponent,
-  ],
+  imports: [DragDropModule, KanbanColumnComponent, ApplicationFormComponent],
   styles: [
     `
       :host {
@@ -42,9 +36,7 @@ import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
         </button>
       </header>
 
-      <app-application-filters class="mb-4 block" />
-
-      @if (service.isFiltering()) {
+      @if (service.isSearching()) {
         <p class="mb-4 text-sm text-slate-600" aria-live="polite">
           Showing {{ service.filtered().length }} of
           {{ service.applications().length }} applications
