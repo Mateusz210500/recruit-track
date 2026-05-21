@@ -9,6 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { ThemeService } from '../../../../../core/theme/theme.service';
 import {
   APPLICATION_STATUSES,
   APPLICATION_STATUS_META,
@@ -30,13 +31,13 @@ type ChartInstance = InstanceType<ChartModule['Chart']>;
   selector: 'app-status-distribution-chart',
   template: `
     <section
-      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none"
       aria-labelledby="status-distribution-heading"
     >
-      <h2 id="status-distribution-heading" class="text-lg font-semibold text-slate-900">
+      <h2 id="status-distribution-heading" class="text-lg font-semibold text-slate-900 dark:text-slate-100">
         Status distribution
       </h2>
-      <p class="mt-1 text-sm text-slate-600">
+      <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
         Share of applications across each pipeline stage.
       </p>
       <div class="mt-4 h-64">
@@ -48,6 +49,7 @@ type ChartInstance = InstanceType<ChartModule['Chart']>;
 export class StatusDistributionChartComponent {
   readonly counts = input.required<Record<ApplicationStatus, number>>();
 
+  private readonly themeService = inject(ThemeService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly chartCanvas = viewChild.required<ElementRef<HTMLCanvasElement>>('chartCanvas');
 
@@ -61,6 +63,7 @@ export class StatusDistributionChartComponent {
 
     effect(() => {
       this.counts();
+      this.themeService.theme();
       void this.updateChart();
     });
 
@@ -87,15 +90,7 @@ export class StatusDistributionChartComponent {
     this.chart = new this.chartModule.Chart(context, {
       type: 'doughnut',
       data: this.buildChartData(),
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: 'bottom',
-          },
-        },
-      },
+      options: this.buildChartOptions(),
     });
   }
 
@@ -108,7 +103,26 @@ export class StatusDistributionChartComponent {
     const nextData = this.buildChartData();
     this.chart.data.labels = nextData.labels;
     this.chart.data.datasets = nextData.datasets;
+    this.chart.options = this.buildChartOptions();
     this.chart.update();
+  }
+
+  private buildChartOptions(): ChartInstance['options'] {
+    const isDark = this.themeService.theme() === 'dark';
+    const labelColor = isDark ? '#cbd5e1' : '#475569';
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: labelColor,
+          },
+        },
+      },
+    };
   }
 
   private buildChartData() {

@@ -203,6 +203,18 @@ export class ApplicationService {
       .subscribe();
   }
 
+  replaceAll(applications: Application[]): void {
+    this.api
+      .replaceAll(applications)
+      .pipe(
+        tap(() => this.reload()),
+        catchError((error) =>
+          this.handleMutationError('Could not import applications', error),
+        ),
+      )
+      .subscribe();
+  }
+
   private groupByStatus(
     applications: Application[],
   ): Record<ApplicationStatus, Application[]> {

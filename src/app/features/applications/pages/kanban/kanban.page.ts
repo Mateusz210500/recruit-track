@@ -22,8 +22,8 @@ import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
     <div class="flex flex-col h-full">
       <header class="flex flex-wrap items-center justify-between gap-3 pb-6">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900">Kanban board</h1>
-          <p class="mt-1 text-sm text-slate-600">
+          <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Kanban board</h1>
+          <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
             Drag cards between columns to update application status.
           </p>
         </div>
@@ -37,7 +37,7 @@ import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
       </header>
 
       @if (service.isSearching()) {
-        <p class="mb-4 text-sm text-slate-600" aria-live="polite">
+        <p class="mb-4 text-sm text-slate-600 dark:text-slate-300" aria-live="polite">
           Showing {{ service.filtered().length }} of
           {{ service.applications().length }} applications
         </p>
@@ -45,15 +45,15 @@ import { KanbanColumnComponent } from './kanban-column/kanban-column.component';
 
       @if (service.isLoading()) {
         <div
-          class="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-16"
+          class="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-16 dark:border-slate-700 dark:bg-slate-900"
           role="status"
           aria-live="polite"
         >
-          <p class="text-sm text-slate-600">Loading applications…</p>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Loading applications…</p>
         </div>
       } @else if (service.error(); as loadError) {
         <div
-          class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-200"
           role="alert"
         >
           <p class="font-medium">Could not load applications</p>

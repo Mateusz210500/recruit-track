@@ -1,5 +1,5 @@
 <aside id="app-sidebar"
-       class="fixed inset-y-0 left-0 z-50 flex h-full w-64 max-lg:w-64 flex-col border-r border-slate-200 bg-white max-lg:transition-[transform,opacity,box-shadow] max-lg:duration-300 max-lg:ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:max-lg:transition-none lg:static lg:z-auto lg:translate-x-0 lg:opacity-100 lg:shadow-none lg:transition-[width] lg:duration-200 lg:ease-in-out"
+       class="fixed inset-y-0 left-0 z-50 flex h-full w-64 max-lg:w-64 flex-col border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 max-lg:transition-[transform,opacity,box-shadow] max-lg:duration-300 max-lg:ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:max-lg:transition-none lg:static lg:z-auto lg:translate-x-0 lg:opacity-100 lg:shadow-none lg:transition-[width] lg:duration-200 lg:ease-in-out"
        [class.lg:w-64]="!collapsed()"
        [class.lg:w-16]="collapsed()"
        [class.max-lg:-translate-x-full]="!open()"
@@ -10,7 +10,7 @@
        [class.max-lg:shadow-xl]="open()"
        [attr.aria-expanded]="!collapsed()"
        aria-label="Main navigation">
-    <div class="flex h-14 shrink-0 items-center border-b border-slate-200 lg:h-16 px-4">
+    <div class="flex h-14 shrink-0 items-center border-b border-slate-200 dark:border-slate-800 lg:h-16 px-4">
         <a routerLink="/board"
            class="flex items-center rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 gap-2"
            [class.lg:justify-center]="collapsed()"
@@ -18,7 +18,7 @@
            (click)="onNavClick()">
             <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white"
                   aria-hidden="true">RT</span>
-            <span class="text-lg font-semibold text-slate-900 transition-opacity duration-200"
+            <span class="text-lg font-semibold text-slate-900 dark:text-slate-100 transition-opacity duration-200"
                   [class.lg:opacity-[0%]]="collapsed()">RecruitTrack</span>
         </a>
     </div>
@@ -30,10 +30,10 @@
             @for (item of navItems; track item.path) {
             <li>
                 <a [routerLink]="item.path"
-                   routerLinkActive="bg-indigo-50 text-indigo-700"
+                   routerLinkActive="bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
                    [routerLinkActiveOptions]="{ exact: true }"
                    ariaCurrentWhenActive="page"
-                   class="group flex rounded-lg text-slate-700 transition-colors gap-3 p-2 items-center hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                   class="group flex rounded-lg text-slate-700 transition-colors gap-3 p-2 items-center hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                    [attr.title]="collapsed() ? item.label : null"
                    (click)="onNavClick()">
                     <app-icon [name]="item.icon"
@@ -69,7 +69,7 @@
     <div class="relative max-lg:hidden">
         <button type="button"
                 style="position: absolute; bottom: 20px; right: -10px;"
-                class="bg-white rounded-full border border-slate-200 text-slate-500"
+                class="bg-white rounded-full border border-slate-200 text-slate-500 dark:bg-slate-900 dark:border-slate-700 dark:text-slate-300"
                 [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
                 (click)="onCollapseToggle()">
             <app-icon [name]="collapsed() ? 'chevron-right' : 'chevron-left'"

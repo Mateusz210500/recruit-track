@@ -38,4 +38,8 @@ export class ApplicationsApi {
   remove(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  replaceAll(applications: Application[]): Observable<Application[]> {
+    return this.http.put<Application[]>(this.baseUrl, applications);
+  }
 }

@@ -17,7 +17,7 @@ import { seedApplications } from '../../features/applications/data/seed-applicat
 import { ApplicationStatus } from '../../features/applications/data/application-status';
 import { clone } from '../utils/clone';
 import { createId } from '../utils/id';
-import { MOCK_API_CONFIG } from './mock-api.config';
+import { MockApiSettingsService } from '../mock-api/mock-api-settings.service';
 
 interface ApplicationsRoute {
   id?: string;
@@ -186,6 +186,12 @@ function handleRequest(
       return apps.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     }
 
+    if (method === 'PUT') {
+      const next = body as Application[];
+      writeCollection(storageKey, clone(next));
+      return next.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    }
+
     if (method === 'POST') {
       const created = createApplication(apps, body as CreateApplicationDto);
       apps.push(created);
@@ -262,7 +268,7 @@ export const mockApiInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  const config = inject(MOCK_API_CONFIG);
+  const config = inject(MockApiSettingsService).config();
 
   if (config.errorRate > 0 && Math.random() < config.errorRate) {
     return simulateError(config);

@@ -27,6 +27,7 @@ describe('ApplicationService', () => {
           update: () => of(buildApplication({ id: 'updated' })),
           move: () => of(buildApplication({ id: 'moved' })),
           remove: () => of(void 0),
+          replaceAll: () => of([]),
         }),
       ],
     });
@@ -188,6 +189,25 @@ describe('ApplicationService', () => {
       'a',
       'b',
     ]);
+  });
+
+  it('reloads after replaceAll', () => {
+    const initial = [buildApplication({ id: 'initial' })];
+    const imported = [buildApplication({ id: 'imported' })];
+
+    list$.next(initial);
+    list$.complete();
+
+    const reload$ = new Subject<Application[]>();
+    const api = TestBed.inject(ApplicationsApi);
+    api.replaceAll = () => of(imported);
+    api.list = () => reload$.asObservable();
+
+    service.replaceAll(imported);
+    reload$.next(imported);
+    reload$.complete();
+
+    expect(service.applications()).toEqual(imported);
   });
 
   it('reloads after create', () => {

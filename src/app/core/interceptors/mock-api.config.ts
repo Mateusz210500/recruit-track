@@ -1,4 +1,6 @@
-import { InjectionToken } from '@angular/core';
+import { inject, InjectionToken } from '@angular/core';
+
+import { MockApiSettingsService } from '../mock-api/mock-api-settings.service';
 
 export interface MockApiConfig {
   latencyMs: number;
@@ -16,6 +18,6 @@ export const MOCK_API_CONFIG = new InjectionToken<MockApiConfig>(
   'MOCK_API_CONFIG',
   {
     providedIn: 'root',
-    factory: () => DEFAULT_MOCK_API_CONFIG,
+    factory: () => inject(MockApiSettingsService).config(),
   },
 );

@@ -11,30 +11,37 @@ import {
 
 const URL_PATTERN = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
 
+const FIELD_CLASS =
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400';
+
+const LABEL_CLASS = 'mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200';
+
 @Component({
   selector: 'app-application-form',
   imports: [ReactiveFormsModule, IconComponent],
   template: `
     @if (open()) {
       <div
-        class="fixed inset-0 z-50 flex justify-end bg-slate-900/40"
+        class="fixed inset-0 z-50 flex justify-end bg-slate-900/40 dark:bg-slate-950/70"
         role="presentation"
         (click)="close()"
       >
         <aside
-          class="flex h-full w-full max-w-md flex-col bg-white shadow-xl"
+          class="flex h-full w-full max-w-md flex-col bg-white shadow-xl dark:border-l dark:border-slate-700 dark:bg-slate-900 dark:shadow-2xl dark:shadow-black/40"
           role="dialog"
           aria-modal="true"
           [attr.aria-labelledby]="dialogTitleId"
           (click)="$event.stopPropagation()"
         >
-          <header class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-            <h2 [id]="dialogTitleId" class="text-lg font-semibold text-slate-900">
+          <header
+            class="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700"
+          >
+            <h2 [id]="dialogTitleId" class="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {{ application() ? 'Edit application' : 'New application' }}
             </h2>
             <button
               type="button"
-              class="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+              class="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               aria-label="Close form"
               (click)="close()"
             >
@@ -49,49 +56,41 @@ const URL_PATTERN = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+
           >
             <div class="space-y-4">
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="company">
-                  Company
-                </label>
+                <label [class]="LABEL_CLASS" for="company">Company</label>
                 <input
                   id="company"
                   type="text"
                   formControlName="company"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  [class]="FIELD_CLASS"
                   autocomplete="organization"
                 />
                 @if (form.controls.company.touched && form.controls.company.hasError('required')) {
-                  <p class="mt-1 text-xs text-red-600">Company is required.</p>
+                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">Company is required.</p>
                 }
                 @if (form.controls.company.touched && form.controls.company.hasError('minlength')) {
-                  <p class="mt-1 text-xs text-red-600">Company must be at least 2 characters.</p>
+                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">
+                    Company must be at least 2 characters.
+                  </p>
                 }
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="role">
-                  Role
-                </label>
+                <label [class]="LABEL_CLASS" for="role">Role</label>
                 <input
                   id="role"
                   type="text"
                   formControlName="role"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  [class]="FIELD_CLASS"
                   autocomplete="organization-title"
                 />
                 @if (form.controls.role.touched && form.controls.role.hasError('required')) {
-                  <p class="mt-1 text-xs text-red-600">Role is required.</p>
+                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">Role is required.</p>
                 }
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="status">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  formControlName="status"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                >
+                <label [class]="LABEL_CLASS" for="status">Status</label>
+                <select id="status" formControlName="status" [class]="FIELD_CLASS">
                   @for (status of statuses; track status) {
                     <option [value]="status">{{ statusLabels[status] }}</option>
                   }
@@ -99,79 +98,61 @@ const URL_PATTERN = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="techStack">
-                  Tech stack
-                </label>
+                <label [class]="LABEL_CLASS" for="techStack">Tech stack</label>
                 <input
                   id="techStack"
                   type="text"
                   formControlName="techStack"
                   placeholder="Angular, TypeScript"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  [class]="FIELD_CLASS"
                 />
-                <p class="mt-1 text-xs text-slate-500">Comma-separated list</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Comma-separated list</p>
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="salary">
-                  Salary (USD)
-                </label>
+                <label [class]="LABEL_CLASS" for="salary">Salary (USD)</label>
                 <input
                   id="salary"
                   type="number"
                   formControlName="salary"
                   min="0"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  [class]="FIELD_CLASS"
                 />
                 @if (form.controls.salary.touched && form.controls.salary.hasError('min')) {
-                  <p class="mt-1 text-xs text-red-600">Salary cannot be negative.</p>
+                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">Salary cannot be negative.</p>
                 }
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="appliedAt">
-                  Applied date
-                </label>
+                <label [class]="LABEL_CLASS" for="appliedAt">Applied date</label>
                 <input
                   id="appliedAt"
                   type="date"
                   formControlName="appliedAt"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  [class]="FIELD_CLASS + ' dark:[color-scheme:dark]'"
                 />
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="url">
-                  Job posting URL
-                </label>
-                <input
-                  id="url"
-                  type="url"
-                  formControlName="url"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
+                <label [class]="LABEL_CLASS" for="url">Job posting URL</label>
+                <input id="url" type="url" formControlName="url" [class]="FIELD_CLASS" />
                 @if (form.controls.url.touched && form.controls.url.hasError('pattern')) {
-                  <p class="mt-1 text-xs text-red-600">Enter a valid URL.</p>
+                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">Enter a valid URL.</p>
                 }
               </div>
 
               <div>
-                <label class="mb-1 block text-sm font-medium text-slate-700" for="notes">
-                  Notes
-                </label>
-                <textarea
-                  id="notes"
-                  rows="3"
-                  formControlName="notes"
-                  class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                ></textarea>
+                <label [class]="LABEL_CLASS" for="notes">Notes</label>
+                <textarea id="notes" rows="3" formControlName="notes" [class]="FIELD_CLASS"></textarea>
                 @if (form.controls.notes.touched && form.controls.notes.hasError('maxlength')) {
-                  <p class="mt-1 text-xs text-red-600">Notes cannot exceed 2000 characters.</p>
+                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">
+                    Notes cannot exceed 2000 characters.
+                  </p>
                 }
               </div>
             </div>
 
-            <footer class="mt-auto flex gap-2 border-t border-slate-200 pt-4">
+            <footer class="mt-auto flex gap-2 border-t border-slate-200 pt-4 dark:border-slate-700">
               <button
                 type="submit"
                 class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
@@ -181,7 +162,7 @@ const URL_PATTERN = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+
               </button>
               <button
                 type="button"
-                class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                class="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
                 (click)="close()"
               >
                 Cancel
@@ -203,6 +184,8 @@ export class ApplicationFormComponent {
   readonly saveUpdate = output<{ id: string; patch: UpdateApplicationDto }>();
   readonly closed = output<void>();
 
+  protected readonly FIELD_CLASS = FIELD_CLASS;
+  protected readonly LABEL_CLASS = LABEL_CLASS;
   protected readonly dialogTitleId = 'application-form-title';
   protected readonly statuses = APPLICATION_STATUSES;
   protected readonly statusLabels: Record<ApplicationStatus, string> = {

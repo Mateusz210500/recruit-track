@@ -15,11 +15,11 @@ export interface DashboardStatCard {
       @for (card of cards(); track card.label) {
         <article
           role="listitem"
-          class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+          class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:shadow-none"
         >
-          <p class="text-sm font-medium text-slate-600">{{ card.label }}</p>
-          <p class="mt-2 text-3xl font-semibold text-slate-900">{{ card.value }}</p>
-          <p class="mt-1 text-xs text-slate-500">{{ card.description }}</p>
+          <p class="text-sm font-medium text-slate-600 dark:text-slate-300">{{ card.label }}</p>
+          <p class="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ card.value }}</p>
+          <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ card.description }}</p>
         </article>
       }
     </div>

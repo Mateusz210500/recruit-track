@@ -89,6 +89,21 @@ describe('mockApiInterceptor', () => {
     ).rejects.toMatchObject({ status: 404 });
   });
 
+  it('replaces the collection with PUT', async () => {
+    const replacement = [buildApplication({ id: 'bulk-1', company: 'Imported Co' })];
+
+    const apps = await firstValueFrom(
+      http.put<Application[]>('/api/applications', replacement),
+    );
+
+    expect(apps).toHaveLength(1);
+    expect(apps[0]?.company).toBe('Imported Co');
+
+    const stored = JSON.parse(localStorage.getItem(storageKey) ?? '[]') as Application[];
+    expect(stored).toHaveLength(1);
+    expect(stored[0]?.company).toBe('Imported Co');
+  });
+
   it('returns 500 when errorRate is forced to 1', async () => {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({

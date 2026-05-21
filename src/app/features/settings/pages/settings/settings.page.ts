@@ -1,26 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 
-import { IconComponent } from '../../../../shared/icons';
+import { ThemeService } from '../../../../core/theme/theme.service';
+import { ImportExportPanelComponent } from '../../ui/import-export-panel/import-export-panel.component';
+import { MockApiDemoPanelComponent } from '../../ui/mock-api-demo-panel/mock-api-demo-panel.component';
+import { ThemePanelComponent } from '../../ui/theme-panel/theme-panel.component';
 
 @Component({
   selector: 'app-settings-page',
-  imports: [IconComponent],
+  imports: [ImportExportPanelComponent, ThemePanelComponent, MockApiDemoPanelComponent],
   template: `
-    <section
-      class="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center shadow-sm"
-      aria-labelledby="settings-heading"
-    >
-      <div
-        class="mb-4 flex size-14 items-center justify-center rounded-full bg-slate-100 text-slate-600"
-        aria-hidden="true"
-      >
-        <app-icon name="settings-cog" class="size-7" strokeWidth="1.5" />
+    <div class="space-y-6">
+      <header>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Settings</h1>
+        <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Manage backups, appearance, and mock API behavior for demos.
+        </p>
+      </header>
+
+      <div class="grid gap-4 lg:grid-cols-2">
+        <app-import-export-panel class="lg:col-span-2" />
+        <app-theme-panel />
+        <app-mock-api-demo-panel />
       </div>
-      <h1 id="settings-heading" class="text-2xl font-semibold text-slate-900">Settings</h1>
-      <p class="mt-2 max-w-md text-slate-600">
-        Import, export, theme, and demo controls will be configured here in a later phase.
-      </p>
-    </section>
+    </div>
   `,
 })
-export class SettingsPage {}
+export class SettingsPage {
+  constructor() {
+    inject(ThemeService);
+  }
+}

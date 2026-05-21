@@ -100,4 +100,17 @@ describe('ApplicationsApi', () => {
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
+
+  it('replaces the full application collection', () => {
+    const apps = [buildApplication({ id: 'bulk-1' })];
+
+    api.replaceAll(apps).subscribe((result) => {
+      expect(result).toEqual(apps);
+    });
+
+    const req = httpMock.expectOne('/api/applications');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(apps);
+    req.flush(apps);
+  });
 });

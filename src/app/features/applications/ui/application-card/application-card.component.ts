@@ -13,19 +13,19 @@ import { StatusPillComponent } from '../status-pill/status-pill.component';
     <article
       cdkDrag
       [cdkDragData]="application()"
-      class="cursor-grab rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-shadow active:cursor-grabbing hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500"
+      class="cursor-grab rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-shadow active:cursor-grabbing hover:shadow-md focus-within:ring-2 focus-within:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:shadow-none dark:hover:shadow-md dark:hover:shadow-black/30"
       [attr.aria-label]="application().company + ' — ' + application().role"
     >
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0 flex-1">
-          <h3 class="font-semibold text-slate-900">{{ application().company }}</h3>
-          <p class="text-sm text-slate-600">{{ application().role }}</p>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">{{ application().company }}</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300">{{ application().role }}</p>
         </div>
         <div class="flex items-start gap-1">
           <button
             type="button"
             cdkDragHandle
-            class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
             aria-label="Drag to reorder"
           >
             <app-icon name="grip" class="size-4" />
@@ -38,7 +38,7 @@ import { StatusPillComponent } from '../status-pill/status-pill.component';
         <ul class="mt-2 flex flex-wrap gap-1" aria-label="Tech stack">
           @for (tech of application().techStack; track tech) {
             <li
-              class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
+              class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-300"
             >
               {{ tech }}
             </li>
@@ -46,7 +46,7 @@ import { StatusPillComponent } from '../status-pill/status-pill.component';
         </ul>
       }
 
-      <dl class="mt-2 space-y-0.5 text-xs text-slate-500">
+      <dl class="mt-2 space-y-0.5 text-xs text-slate-500 dark:text-slate-400">
         @if (application().salary; as salary) {
           <div class="flex justify-between gap-2">
             <dt>Salary</dt>
@@ -64,7 +64,7 @@ import { StatusPillComponent } from '../status-pill/status-pill.component';
       <div class="mt-3 flex gap-2">
         <button
           type="button"
-          class="rounded-md px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50"
+          class="rounded-md px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-950"
           (click)="edit.emit(application()); $event.stopPropagation()"
         >
           Edit
