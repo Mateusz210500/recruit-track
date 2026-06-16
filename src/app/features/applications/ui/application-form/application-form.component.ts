@@ -1,5 +1,7 @@
-import { Component, effect, inject, input, model, output } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { map, startWith } from 'rxjs';
 
 import { IconComponent } from '../../../../shared/icons';
 import { APPLICATION_STATUSES, ApplicationStatus } from '../../data/application-status';
@@ -8,8 +10,10 @@ import {
   CreateApplicationDto,
   UpdateApplicationDto,
 } from '../../data/application.model';
+import { mapExtractedToFormValues } from '../../data/extracted-application.mapper';
+import { JobOfferExtractionService } from '../../data/job-offer-extraction.service';
 
-const URL_PATTERN = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
+const URL_PATTERN = /^https?:\/\/([\w-]+\.)+[\w-]+(\/[\w\-._~:/?#[\]@!$&'()*+,;=]*)?$/i;
 
 const FIELD_CLASS =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-indigo-400 dark:focus:ring-indigo-400';
@@ -54,7 +58,57 @@ const LABEL_CLASS = 'mb-1 block text-sm font-medium text-slate-700 dark:text-sla
             [formGroup]="form"
             (ngSubmit)="submit()"
           >
-            <div class="space-y-4">
+            <div class="space-y-4" [attr.aria-busy]="isCreateMode() && extraction.isExtracting()">
+              @if (!application()) {
+                <div>
+                  <label [class]="LABEL_CLASS" for="url">Job posting URL</label>
+                  <div class="flex gap-2">
+                    <input
+                      id="url"
+                      type="url"
+                      formControlName="url"
+                      placeholder="https://justjoin.it/offers/..."
+                      [class]="FIELD_CLASS + ' min-w-0 flex-1'"
+                    />
+                    <button
+                      type="button"
+                      class="shrink-0 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      [disabled]="!canExtract()"
+                      (click)="extractFromUrl()"
+                    >
+                      @if (extraction.isExtracting()) {
+                        Extracting…
+                      } @else {
+                        Extract
+                      }
+                    </button>
+                  </div>
+                  @if (form.controls.url.touched && form.controls.url.hasError('pattern')) {
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">
+                      Enter a valid URL with https://
+                    </p>
+                  }
+                  @if (extraction.isExtracting()) {
+                    <p class="mt-2 text-xs text-slate-600 dark:text-slate-300" aria-live="polite">
+                      Scraping and analyzing the job posting. This may take up to a minute.
+                    </p>
+                  }
+                  @if (extraction.extractError(); as extractError) {
+                    <p class="mt-2 text-xs text-red-600 dark:text-red-400" aria-live="polite">
+                      {{ extractError.userMessage() }}
+                    </p>
+                  }
+                  @if (extractSuccess()) {
+                    <p class="mt-2 text-xs text-green-700 dark:text-green-400" aria-live="polite">
+                      Fields auto-filled — review before saving.
+                    </p>
+                  }
+                  <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Paste a job URL and click Extract to auto-fill the form.
+                  </p>
+                </div>
+              }
+
               <div>
                 <label [class]="LABEL_CLASS" for="company">Company</label>
                 <input
@@ -133,13 +187,15 @@ const LABEL_CLASS = 'mb-1 block text-sm font-medium text-slate-700 dark:text-sla
                 />
               </div>
 
-              <div>
-                <label [class]="LABEL_CLASS" for="url">Job posting URL</label>
-                <input id="url" type="url" formControlName="url" [class]="FIELD_CLASS" />
-                @if (form.controls.url.touched && form.controls.url.hasError('pattern')) {
-                  <p class="mt-1 text-xs text-red-600 dark:text-red-400">Enter a valid URL.</p>
-                }
-              </div>
+              @if (application()) {
+                <div>
+                  <label [class]="LABEL_CLASS" for="url">Job posting URL</label>
+                  <input id="url" type="url" formControlName="url" [class]="FIELD_CLASS" />
+                  @if (form.controls.url.touched && form.controls.url.hasError('pattern')) {
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">Enter a valid URL.</p>
+                  }
+                </div>
+              }
 
               <div>
                 <label [class]="LABEL_CLASS" for="notes">Notes</label>
@@ -176,6 +232,7 @@ const LABEL_CLASS = 'mb-1 block text-sm font-medium text-slate-700 dark:text-sla
 })
 export class ApplicationFormComponent {
   private readonly fb = inject(NonNullableFormBuilder);
+  protected readonly extraction = inject(JobOfferExtractionService);
 
   readonly open = model(false);
   readonly application = input<Application | null>(null);
@@ -183,6 +240,11 @@ export class ApplicationFormComponent {
   readonly saveCreate = output<CreateApplicationDto>();
   readonly saveUpdate = output<{ id: string; patch: UpdateApplicationDto }>();
   readonly closed = output<void>();
+
+  protected readonly isCreateMode = computed(() => !this.application());
+  protected readonly extractSuccess = computed(
+    () => this.isCreateMode() && this.extraction.extractedData() !== null,
+  );
 
   protected readonly FIELD_CLASS = FIELD_CLASS;
   protected readonly LABEL_CLASS = LABEL_CLASS;
@@ -207,14 +269,33 @@ export class ApplicationFormComponent {
     notes: ['', Validators.maxLength(2000)],
   });
 
+  private readonly urlValue = toSignal(
+    this.form.controls.url.valueChanges.pipe(
+      startWith(this.form.controls.url.value),
+      map((value) => value.trim()),
+    ),
+    { initialValue: '' },
+  );
+
+  protected readonly canExtract = computed(() => {
+    if (!this.isCreateMode() || this.extraction.isExtracting()) {
+      return false;
+    }
+
+    const url = this.urlValue();
+    return url.length > 0 && URL_PATTERN.test(url);
+  });
+
   constructor() {
     effect(() => {
       if (!this.open()) {
+        this.extraction.reset();
         return;
       }
 
       const app = this.application();
       if (app) {
+        this.extraction.reset();
         this.form.reset({
           company: app.company,
           role: app.role,
@@ -228,6 +309,7 @@ export class ApplicationFormComponent {
         return;
       }
 
+      this.extraction.reset();
       this.form.reset({
         company: '',
         role: '',
@@ -239,6 +321,25 @@ export class ApplicationFormComponent {
         notes: '',
       });
     });
+
+    effect(() => {
+      const data = this.extraction.extractedData();
+      if (!data || !this.isCreateMode() || !this.open()) {
+        return;
+      }
+
+      this.form.patchValue(mapExtractedToFormValues(data));
+    });
+  }
+
+  extractFromUrl(): void {
+    const url = this.form.controls.url.value.trim();
+    if (!url || !URL_PATTERN.test(url)) {
+      this.form.controls.url.markAsTouched();
+      return;
+    }
+
+    this.extraction.extract(url);
   }
 
   submit(): void {
@@ -289,6 +390,7 @@ export class ApplicationFormComponent {
   }
 
   close(): void {
+    this.extraction.reset();
     this.open.set(false);
     this.closed.emit();
   }

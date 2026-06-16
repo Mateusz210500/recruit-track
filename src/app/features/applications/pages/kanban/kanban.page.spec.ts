@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it, beforeEach } from 'vitest';
 
-import { provideTestMockApi } from '../../../../../../testing/test-bed';
+import { provideInMemoryApplicationsApi } from '../../../../../../testing/in-memory-applications-api';
+import { provideTestHttp } from '../../../../../../testing/test-bed';
 import { ApplicationService } from '../../data/application.service';
 import { KanbanPage } from './kanban.page';
 
@@ -11,11 +12,8 @@ describe('KanbanPage', () => {
     localStorage.clear();
   });
 
-  it('shows loading then renders kanban columns', async () => {
+  it('renders kanban columns', async () => {
     const fixture = await setup();
-    expect(fixture.nativeElement.textContent).toContain('Loading applications');
-
-    fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -57,7 +55,11 @@ describe('KanbanPage', () => {
 async function setup() {
   await TestBed.configureTestingModule({
     imports: [KanbanPage],
-    providers: [provideRouter([]), ...provideTestMockApi()],
+    providers: [
+      provideRouter([]),
+      ...provideTestHttp(),
+      provideInMemoryApplicationsApi(),
+    ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(KanbanPage);

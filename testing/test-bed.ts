@@ -1,22 +1,12 @@
 import { EnvironmentProviders, Provider, Type } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import {
-  provideHttpClient,
-  withInterceptors,
-} from '@angular/common/http';
 
-import { mockApiInterceptor } from '../src/app/core/interceptors/mock-api.interceptor';
-import { MockApiConfig } from '../src/app/core/interceptors/mock-api.config';
+import { provideApiConfig } from '../src/app/core/api/provide-api.config';
 import { ApplicationsApi } from '../src/app/features/applications/data/applications.api';
-import { provideTestMockApiSettings } from './mock-api-settings';
 
-export function provideTestMockApi(
-  overrides: Partial<MockApiConfig> = {},
-): (Provider | EnvironmentProviders)[] {
-  return [
-    provideTestMockApiSettings(overrides),
-    provideHttpClient(withInterceptors([mockApiInterceptor])),
-  ];
+export function provideTestHttp(): (Provider | EnvironmentProviders)[] {
+  return [provideApiConfig(), provideHttpClient()];
 }
 
 export function provideFakeApplicationsApi(

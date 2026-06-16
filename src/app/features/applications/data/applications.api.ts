@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { API_BASE_URL } from '../../../core/api/api.config';
 import {
   Application,
   CreateApplicationDto,
@@ -12,7 +13,7 @@ import {
 @Injectable({ providedIn: 'root' })
 export class ApplicationsApi {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api/applications';
+  private readonly baseUrl = `${inject(API_BASE_URL).replace(/\/$/, '')}/api/applications`;
 
   list(): Observable<Application[]> {
     return this.http.get<Application[]>(this.baseUrl);

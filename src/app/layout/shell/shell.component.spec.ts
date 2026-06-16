@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { describe, expect, it, beforeEach } from 'vitest';
 
+import { provideTestHttp } from '../../../../testing/test-bed';
 import { routes } from '../../app.routes';
 import { ShellComponent } from './shell.component';
 
@@ -9,7 +10,7 @@ describe('ShellComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ShellComponent],
-      providers: [provideRouter(routes)],
+      providers: [provideRouter(routes), ...provideTestHttp()],
     }).compileComponents();
   });
 

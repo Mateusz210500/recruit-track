@@ -1,7 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 
 import { buildApplication } from '../../../../../../testing/factories';
+import { ExtractedApplication } from '../../data/extracted-application.model';
+import { JobOfferExtractionService } from '../../data/job-offer-extraction.service';
+import { JobOffersApi } from '../../data/job-offers.api';
 import { ApplicationFormComponent } from './application-form.component';
 
 describe('ApplicationFormComponent', () => {
@@ -80,11 +84,44 @@ describe('ApplicationFormComponent', () => {
       }),
     });
   });
+
+  it('auto-fills the form after extracting from a job URL', async () => {
+    const extracted: ExtractedApplication = {
+      company: 'Vercel',
+      role: 'Frontend Engineer',
+      salary: '180000',
+      techStack: ['Next.js', 'React'],
+      notes: 'Remote-friendly',
+      url: 'https://example.com/jobs/vercel',
+    };
+
+    const fixture = await setup({
+      extract: () => of(extracted),
+    });
+    fixture.componentInstance.open.set(true);
+    fixture.detectChanges();
+
+    fixture.componentInstance.form.controls.url.setValue('https://example.com/jobs/vercel');
+    fixture.componentInstance.extractFromUrl();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.form.controls.company.value).toBe('Vercel');
+    expect(fixture.componentInstance.form.controls.role.value).toBe('Frontend Engineer');
+    expect(fixture.componentInstance.form.controls.techStack.value).toBe('Next.js, React');
+    expect(fixture.componentInstance.form.controls.salary.value).toBe(180000);
+    expect(fixture.nativeElement.textContent).toContain('Fields auto-filled');
+  });
 });
 
-async function setup() {
+async function setup(jobOffersApi: Partial<JobOffersApi> = {}) {
   await TestBed.configureTestingModule({
     imports: [ApplicationFormComponent],
+    providers: [
+      JobOfferExtractionService,
+      { provide: JobOffersApi, useValue: jobOffersApi },
+    ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(ApplicationFormComponent);

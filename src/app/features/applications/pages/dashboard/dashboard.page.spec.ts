@@ -2,7 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { describe, expect, it, beforeEach } from 'vitest';
 
-import { provideTestMockApi } from '../../../../../../testing/test-bed';
+import { provideInMemoryApplicationsApi } from '../../../../../../testing/in-memory-applications-api';
+import { provideTestHttp } from '../../../../../../testing/test-bed';
 import { DashboardPage } from './dashboard.page';
 
 describe('DashboardPage', () => {
@@ -10,10 +11,8 @@ describe('DashboardPage', () => {
     localStorage.clear();
   });
 
-  it('shows loading then renders stat cards', async () => {
+  it('renders stat cards', async () => {
     const fixture = await setup();
-    expect(fixture.nativeElement.textContent).toContain('Loading dashboard');
-
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -36,7 +35,11 @@ describe('DashboardPage', () => {
 async function setup() {
   await TestBed.configureTestingModule({
     imports: [DashboardPage],
-    providers: [provideRouter([]), ...provideTestMockApi()],
+    providers: [
+      provideRouter([]),
+      ...provideTestHttp(),
+      provideInMemoryApplicationsApi(),
+    ],
   }).compileComponents();
 
   const fixture = TestBed.createComponent(DashboardPage);

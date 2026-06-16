@@ -6,6 +6,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 
+import { provideApiConfig } from '../../../core/api/provide-api.config';
 import { buildApplication } from '../../../../../testing/factories';
 import { ApplicationsApi } from './applications.api';
 
@@ -15,7 +16,11 @@ describe('ApplicationsApi', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideApiConfig(),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     });
 
     api = TestBed.inject(ApplicationsApi);

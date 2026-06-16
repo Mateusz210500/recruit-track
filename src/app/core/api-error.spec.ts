@@ -25,4 +25,10 @@ describe('ApiError', () => {
     expect(result.status).toBe(0);
     expect(result.message).toBe('boom');
   });
+
+  it('maps API error codes to user-friendly messages', () => {
+    const result = new ApiError(422, 'raw', undefined, 'SCRAPE_EMPTY');
+
+    expect(result.userMessage()).toBe('Could not read enough content from this job posting.');
+  });
 });
