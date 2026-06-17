@@ -3,10 +3,11 @@ import { Component, inject, input, output } from '@angular/core';
 import { isActive, Router } from '@angular/router';
 import { ApplicationService } from '../../features/applications/data/application.service';
 import { IconComponent } from '../../shared/icons';
+import { KeyboardSearchDirective } from './keyboard-search.directive';
 
 @Component({
   selector: 'app-topbar',
-  imports: [IconComponent],
+  imports: [IconComponent, KeyboardSearchDirective],
   templateUrl: './topbar.component.html',
 })
 export class TopbarComponent {

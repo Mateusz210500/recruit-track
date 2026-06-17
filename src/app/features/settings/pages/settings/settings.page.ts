@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 
 import { ThemeService } from '../../../../core/theme/theme.service';
+import { AutoRefreshPanelComponent } from '../../ui/auto-refresh-panel/auto-refresh-panel';
 import { ImportExportPanelComponent } from '../../ui/import-export-panel/import-export-panel.component';
 import { ThemePanelComponent } from '../../ui/theme-panel/theme-panel.component';
 
 @Component({
   selector: 'app-settings-page',
-  imports: [ImportExportPanelComponent, ThemePanelComponent],
+  imports: [ImportExportPanelComponent, ThemePanelComponent, AutoRefreshPanelComponent],
   template: `
     <div class="space-y-6">
       <header>
@@ -19,6 +20,7 @@ import { ThemePanelComponent } from '../../ui/theme-panel/theme-panel.component'
       <div class="grid gap-4 lg:grid-cols-2">
         <app-import-export-panel class="lg:col-span-2" />
         <app-theme-panel />
+        <app-auto-refresh-panel />
       </div>
     </div>
   `,
