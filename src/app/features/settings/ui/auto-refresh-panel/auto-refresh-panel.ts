@@ -5,7 +5,7 @@ import { AutoRefreshService } from '../../../../core/auto-refresh/auto-refresh.s
   selector: 'app-auto-refresh-panel',
   template: `
     <section
-      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
+      class="h-full rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"
       aria-labelledby="auto-refresh-heading"
     >
       <h2
